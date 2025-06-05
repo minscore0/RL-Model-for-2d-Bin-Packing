@@ -19,7 +19,7 @@ def run_ppo():
     pass
 
 
-def generate_data(packing_bin, num_samples = 500):
+def h_generate_data(packing_bin, num_samples = 500):
     data, state = list(), list()
     for n in range(num_samples):
         sample = BinPackingEnv(random.sample(packing_bin.circle_radii, packing_bin.num_circles))
@@ -29,7 +29,7 @@ def generate_data(packing_bin, num_samples = 500):
 
         for r in sample.circle_radii:
             print(sample.circles, sample.index)
-            if current_x + 2*r > 2000:
+            if current_x + 2*r > 1400:
                 current_x = 0
                 current_y += max_row_height
                 max_row_height = 0
@@ -45,6 +45,10 @@ def generate_data(packing_bin, num_samples = 500):
             max_row_height = max(max_row_height, 2*r)
 
     return data
+
+
+def is_valid():
+    pass
 
 
 def preprocess(state, max_circles):
@@ -91,13 +95,13 @@ def train_bc_model(data, max_circles, epochs=10, batch_size=64):
 def update_display(screen, circles, index=-1):  # regular display updater
     screen.fill((0, 0, 0))
     for x, y, r in circles[:]:
-        pygame.gfxdraw.circle(screen, 100+int(x), 800-int(y), r, (255, 255, 255))
+        pygame.gfxdraw.circle(screen, 75+int(x), 800-int(y), r, (255, 255, 255))
 
     return None
 
 
 # active variables
-circle_radii = [random.randint(1, 70) for i in range(40)]
+circle_radii = [random.randint(10, 70) for i in range(60)]
 packing_bin = BinPackingEnv(circle_radii)
 started = False  # status of running the simulation
 placed = []
@@ -111,7 +115,7 @@ while running:
         num_circles = packing_bin.num_circles
 
         print("Generating expert data...")
-        data = generate_data(packing_bin, num_samples=500)
+        data = h_generate_data(packing_bin, num_samples=800)
 
         print("Training behavior cloning model...")
         bc_model = train_bc_model(data, num_circles, epochs=20)
