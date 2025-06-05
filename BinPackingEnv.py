@@ -12,7 +12,7 @@ class BinPackingEnv():
         self.num_circles = len(self.circle_radii)
         self.index = 0
         self.placed_circles = self.circles[:self.index]
-        self.done = False
+        self.done = self.index == self.num_circles
         print("Bin initialized.")
 
     def reset(self) -> Tuple[list, int]:
@@ -20,17 +20,17 @@ class BinPackingEnv():
         self.placed_circles = [[r, [0, 0]] for r in self.circle_radii]
         self.index = 0
         self.done = False
-        return self._get_state()
+        return self.get_state()
     
-    def _get_state(self) -> Tuple[list, int]:
+    def get_state(self) -> Tuple[list, int]:
         # returns the state (positions, index)
         return self.circles, self.index
     
-    def step(self, action: tuple) -> tuple[tuple[list, int], int, bool]:
+    def step(self, action: tuple) -> tuple[tuple[list, int], int]:
         # Takes in the action (position). ex: action = (x, y)
         # Returns the next state, reward/penalty, and status, based on the validity of the action.
         reward = 0
-        if self._is_valid_placement(action, self.circles[self.index]):
+        if self.is_valid_placement(action, self.circles[self.index]):
             reward += self.RW_VALID
         else:
             reward += self.PN_INVALID
@@ -40,9 +40,9 @@ class BinPackingEnv():
         if self.index == self.num_circles:
             self.done = True
 
-        return self._get_state(), reward, self.done
+        return self.get_state(), reward
 
-    def _is_valid_placement(self, position, radius) -> bool:
+    def is_valid_placement(self, position, radius) -> bool:
         # Determines validity of position with radius given already packed circles.
         if position[0] < radius or position[1] < radius:
             return False
